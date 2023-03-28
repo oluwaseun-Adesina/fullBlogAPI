@@ -10,6 +10,7 @@ const categoryCreateController = async (req, res) =>{
     }
   }
 
+// get single category
 const getSingleCategoryController = async (req, res) => {
     try {
         res.json({
@@ -20,6 +21,8 @@ const getSingleCategoryController = async (req, res) => {
         res.json(error.message)
     }
 }
+
+// delete category
 
 const categoryDeleteController = async (req, res) => {
     try {
@@ -32,6 +35,7 @@ const categoryDeleteController = async (req, res) => {
     }
 }
 
+// update category
 const categoryUpdateController =  async (req, res) => {
     try {
         res.json({

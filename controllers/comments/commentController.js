@@ -10,6 +10,7 @@ const commentCreateController = async (req, res) =>{
     }
   }
 
+// get single comment
 const getSingleCommentController = async (req, res) =>{
     try{
       res.json({
@@ -21,6 +22,7 @@ const getSingleCommentController = async (req, res) =>{
     }
   }
 
+//   delete comment
 const commentDeleteController = async (req, res) => {
     try {
         res.json({
@@ -32,6 +34,7 @@ const commentDeleteController = async (req, res) => {
     }
 }
 
+// update comment
 const commentUpdateController = async (req, res) => {
     try {
         res.json({
