@@ -12,6 +12,8 @@ const app = express()
 
 // middlewares
 app.use(morgan('dev'))
+app.use(express.json())
+
 // routes
 
 // users routes

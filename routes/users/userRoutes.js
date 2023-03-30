@@ -1,5 +1,5 @@
 const express = require('express')
-const { userRegisterController, userUpdateController, userDeletionController,allUsersController, userLoginController, userProfile } = require('../../controllers/users/userController');
+const { userRegisterController, userUpdateController, userDeletionController,allUsersController, userLoginController, userProfileController } = require('../../controllers/users/userController');
 
 
 const userRouter = express.Router()
@@ -10,7 +10,7 @@ userRouter.post('/register', userRegisterController)
   userRouter.post('/login', userLoginController )
   
   // get/api/v1/users/:id
-  userRouter.get('/profile/:id', userProfile )
+  userRouter.get('/profile/:id', userProfileController )
   
   // get/api/v1/usersr
   userRouter.get('/', allUsersController )
