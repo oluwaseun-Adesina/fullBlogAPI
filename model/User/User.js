@@ -60,12 +60,12 @@ const userSchema = new mongoose.Schema({
         }
     ],
     plan:[{
-        type: Sting,
+        type: String, 
         enum: ['Free', 'Premium', 'Pro'],
         default: 'Free'
     }],
     userAward: {
-        type: Sting,
+        type: String,
         enum: ['Bronze', 'Sliver', 'Gold'],
         default: 'Bronze'
     }

@@ -2,7 +2,7 @@ const User = require("../../model/User/User");
 const bcrypt = require('bcryptjs');
 const generateToken = require("../../utils/generateToken");
 const getTokenFromHeader = require("../../utils/getTokenFromHeader");
-const {appErr, AppErr} = require("../../utils/appErr");
+const { appErr, AppErr } = require("../../utils/appErr");
 
 
 // register
@@ -34,16 +34,16 @@ const userRegisterController = async (req, res, next) => {
   } catch (error) {
     next(appErr(error.message));
   }
-}; 
+};
 
 //   login
 const userLoginController = async (req, res) => {
-  const { email, password} = req.body
+  const { email, password } = req.body
   console.log(req.headers)
   try {
     // check if email exist
-    const userFound = await User.findOne({email});
-    if(!userFound){
+    const userFound = await User.findOne({ email });
+    if (!userFound) {
       return res.json({
         msg: "Invalid login credential"
       })
@@ -53,7 +53,7 @@ const userLoginController = async (req, res) => {
     const isPasswordMatched = await bcrypt.compare(password, userFound.password)
 
 
-    if(!isPasswordMatched){
+    if (!isPasswordMatched) {
       return res.json({
         msg: "Invalid login credential"
       })
@@ -77,10 +77,10 @@ const userLoginController = async (req, res) => {
 //   get user profile
 const userProfileController = async (req, res) => {
   // console.log(req.userAuth)
-  const { id } = req.params 
+  const { id } = req.params
   // console.log(req.header)
   try {
-    
+
     // const token = getTokenFromHeader(req)
     // console.log(token)
     const user = await User.findById(req.userAuth)
@@ -129,6 +129,44 @@ const userUpdateController = async (req, res) => {
   }
 };
 
+// profile photo upload
+const profilePhotoUploadController = async (req, res, next) => {
+
+  try {
+    // find the user to be updated
+    const userToUpdate = await User.findById(req.userAuth);
+    // check if user is found
+    if (!userToUpdate) {
+      return next(appErr("User not found", 403))
+    }
+    // check if user is blocked
+    if (userToUpdate.isBlocked) {
+      return next(appErr("Action not allowed, your account is blocked", 403))
+    }
+    // check if a user is updating their photo
+    if (req.file) {
+      // update the profile photo
+      await User.findByIdAndUpdate(req.userAuth, {
+        $set: {
+          profilePhoto: req.file.path
+        }
+      },
+      {
+        new: true
+      }
+    );
+    res.json({
+        status: "success",
+        data: "You have successfully Updated your profile photo",
+      });
+    }
+
+    
+  } catch (error) {
+    next(appErr(error.message, 500))
+  }
+}
+
 module.exports = {
   userRegisterController,
   userLoginController,
@@ -136,4 +174,5 @@ module.exports = {
   allUsersController,
   userDeletionController,
   userUpdateController,
+  profilePhotoUploadController
 };
