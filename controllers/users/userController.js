@@ -1,6 +1,7 @@
 const User = require("../../model/User/User");
 const bcrypt = require('bcryptjs');
 const generateToken = require("../../utils/generateToken");
+const getTokenFromHeader = require("../../utils/getTokenFromHeader");
 
 
 // register
@@ -34,11 +35,12 @@ const userRegisterController = async (req, res) => {
   } catch (error) {
     res.json(error.message);
   }
-};
+}; 
 
 //   login
 const userLoginController = async (req, res) => {
   const { email, password} = req.body
+  console.log(req.headers)
   try {
     // check if email exist
     const userFound = await User.findOne({email});
@@ -75,15 +77,14 @@ const userLoginController = async (req, res) => {
 
 //   get user profile
 const userProfileController = async (req, res) => {
-  
+  // console.log(req.userAuth)
   const { id } = req.params 
+  // console.log(req.header)
   try {
-
-    // get token from header
-    const headerObj = req.headers;
-    const token = headerObj.authorization;
-    console.log(token)
-    const user = await User.findById(id)
+    
+    // const token = getTokenFromHeader(req)
+    // console.log(token)
+    const user = await User.findById(req.userAuth)
     res.json({
       status: "success",
       data: user,
