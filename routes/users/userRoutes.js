@@ -32,7 +32,7 @@ userRouter.put('/:id', userUpdateController)
 userRouter.post(
   '/profile-photo-upload',
   isLogin,
-  upload.single('profile '),
+  upload.single('profile'),
   profilePhotoUploadController
 )
 
