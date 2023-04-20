@@ -16,7 +16,7 @@ const userRegisterController = async (req, res, next) => {
     }
     // hash password
     const salt = await bcrypt.genSalt(10);
-    console.log(salt)
+    // console.log(salt)
     const hashedPassword = await bcrypt.hash(password, salt)
 
     // create user
@@ -39,7 +39,7 @@ const userRegisterController = async (req, res, next) => {
 //   login
 const userLoginController = async (req, res) => {
   const { email, password } = req.body
-  console.log(req.headers)
+  // console.log(req.headers)
   try {
     // check if email exist
     const userFound = await User.findOne({ email });
@@ -69,6 +69,109 @@ const userLoginController = async (req, res) => {
         token: generateToken(userFound._id)
       },
     });
+  } catch (error) {
+    res.json(error.message);
+  }
+};
+
+// who view my profile
+const whoViewMyProfileController = async (req, res, next) => {
+  try {
+    // find the original user
+    const user = await User.findById(req.params.id)
+    //  find the user who viewed the profile
+    const userWhoViewed = await User.findById(req.userAuth)
+    // check if the two are found
+    if (user || userWhoViewed) {
+      // check if the user is already in the array of viewers
+      const isUserAlreadyViewed = user.viewers.find(viewer => viewer.toString() === userWhoViewed._id.toString())
+     if(isUserAlreadyViewed){
+        return next(appErr("You have already viewed this profile", 400))
+      }else{
+        // push the user to the array of viewers
+        user.viewers.push(userWhoViewed._id)
+        await user.save()
+        res.json({
+          status: "success",
+          data: "You have successfully viewed this profile"
+        }) 
+  
+      }
+    }
+  } catch (error) {
+    res.json(error.message);
+  }
+};
+
+// following
+const followingController = async (req, res, next) => {
+  try {
+    // find the original user to follow
+    const userToFollow = await User.findById(req.params.id)
+    //  find the user who is following
+    const userWhoFollowed = await User.findById(req.userAuth)
+
+    // check if the two are found
+    if (userToFollow && userWhoFollowed) {
+      // check if userwhoFollowed is already in the array of followers
+      const isUserAlreadyFollowed = userToFollow.followers.find(
+        follower => follower.toString() === userWhoFollowed._id.toString()
+        )
+      if (isUserAlreadyFollowed) {
+        return next(appErr("You have already followed this user", 400))
+      }else{
+        // push the userwhofollowed to the array of followers
+        userToFollow.followers.push(userWhoFollowed._id)
+        // push the userToFollow to the array of following
+        userWhoFollowed.following.push(userToFollow._id)
+        // save the userWhoFollowed
+        await userToFollow.save()
+        // save the userToFollow
+        await userWhoFollowed.save()
+        res.json({
+          status: "success",
+          data: "You have successfully followed this user"
+        }) 
+      }
+    }
+
+  } catch (error) {
+    res.json(error.message);
+  }
+};
+
+// unfollow
+const unfollowController = async (req, res, next) => {
+  try {
+    // find the original user to follow
+    const userToUnfollow = await User.findById(req.params.id)
+    //  find the user who is following
+    const userWhoUnfollowed = await User.findById(req.userAuth)
+
+    // check if the two are found
+    if (userToUnfollow && userWhoUnfollowed) {
+      // check if userwhoFollowed is already in the array of followers
+      const isUserAlreadyFollowed = userToUnfollow.followers.find(
+        follower => follower.toString() === userWhoUnfollowed._id.toString()
+        )
+      if (!isUserAlreadyFollowed) {
+        return next(appErr("You have not followed this user", 400))
+      }else{
+        // remove the userwhofollowed to the array of followers
+        userToUnfollow.followers = userToUnfollow.followers.filter(follower => follower.toString() !== userWhoUnfollowed._id.toString())
+        // remove the userToFollow to the array of following
+        userWhoUnfollowed.following = userWhoUnfollowed.following.filter(following => following.toString() !== userToUnfollow._id.toString())
+        // save the userWhoFollowed
+        await userToUnfollow.save()
+        // save the userToFollow
+        await userWhoUnfollowed.save()
+        res.json({
+          status: "success",
+          data: "You have successfully unfollowed this user"
+        })
+      }
+    }
+
   } catch (error) {
     res.json(error.message);
   }
@@ -174,5 +277,8 @@ module.exports = {
   allUsersController,
   userDeletionController,
   userUpdateController,
-  profilePhotoUploadController
+  profilePhotoUploadController,
+  whoViewMyProfileController,
+  followingController,
+  unfollowController
 };
