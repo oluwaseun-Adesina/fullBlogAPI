@@ -9,11 +9,17 @@ const {
   profilePhotoUploadController,
   whoViewMyProfileController,
   followingController,
-  unfollowController
+  unfollowController,
+  blockUsersController,
+  unblockUsersController,
+  adminBlockUserController, 
+  adminUnblockUserController
 } = require('../../controllers/users/userController');
 const isLogin = require('../../middlewares/isLogin');
 const storage = require('../../config/cloudinary');
-const multer = require('multer')
+const multer = require('multer');
+const isAdmin = require('../../middlewares/isAdmin');
+
 
 // instance of multer
 const upload = multer({ storage })
@@ -47,6 +53,19 @@ userRouter.get('/following/:id', isLogin, followingController)
 
 // // get/api/v1/users/unfollowing/:id
 userRouter.get('/unfollowing/:id', isLogin, unfollowController)
+
+// get/api/v1/users/blocked/:id
+userRouter.get('/blocked/:id', isLogin, blockUsersController)
+
+// get/api/v1/users/unblocked/:id
+userRouter.get('/unblocked/:id', isLogin, unblockUsersController)
+
+// get/api/v1/users/adminblock/:id
+userRouter.put('/adminblock/:id', isLogin, isAdmin, adminBlockUserController)
+
+// get/api/v1/users/adminunblock/:id
+userRouter.put('/adminunblock/:id', isLogin, isAdmin, adminUnblockUserController)
+
 
 
 

@@ -5,6 +5,7 @@ const postRouter = require('./routes/posts/postRoutes')
 const commentRouter = require('./routes/comments/commentRoutes')
 const categoryRouter = require('./routes/categories/categoryRoutes')
 const globalErrorHandler = require('./middlewares/globalErrorHandler')
+const isAdmin = require('./middlewares/isAdmin')
 
 
 require('dotenv').config()
@@ -15,6 +16,7 @@ const app = express()
 // middlewares
 app.use(morgan('dev'))
 app.use(express.json())
+app.use(isAdmin)
 
 // routes
 

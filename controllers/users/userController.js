@@ -12,7 +12,7 @@ const userRegisterController = async (req, res, next) => {
     // check if email exist
     const userFound = await User.findOne({ email });
     if (userFound) {
-      return next(apprr("User Already Exist", 500))
+      return next(appErr("User Already Exist", 500))
     }
     // hash password
     const salt = await bcrypt.genSalt(10);
@@ -208,6 +208,122 @@ const allUsersController = async (req, res) => {
   }
 };
 
+//  block user
+const blockUsersController = async (req, res, next) => {
+  try {
+    // find the user to blocked 
+    const userToBeBlocked = await User.findById(req.params.id)
+    // find the user who is blocking
+    const userWhoBlocked = await User.findById(req.userAuth)
+    // check if user to be block and user who block exist
+
+    if(userToBeBlocked && userWhoBlocked){
+      // check if the user to be blockd is already blocked by the blocking  user
+      const isUserAlreadyBlocked = userWhoBlocked.blocked.find(blocked=> blocked.toString() === userToBeBlocked._id.toString())
+
+      if(isUserAlreadyBlocked){
+        return next (appErr("You already blocked this user"))
+      }
+      // push userTobe blocked to the userwho block blocked arrary
+      userWhoBlocked.blocked.push(userToBeBlocked._id)
+      //save
+      await userWhoBlocked.save()
+      res.json({
+        status: "success",
+        data: "You have successfully blocked the user",
+      });
+    }
+
+    
+  } catch (error) {
+    res.json(error.message);
+  }
+};
+
+//   unblock user
+const unblockUsersController = async (req, res, next) => {
+  try {
+    // find the user to be unblocked
+    const userToBeUnblocked = await User.findById(req.params.id)
+    // find the user who is unblocking
+    const userWhoisUnblocking = await User.findById(req.userAuth)
+
+    // check if the two users exist
+    if(userToBeUnblocked && userWhoisUnblocking){
+      // check if user to be unblocked is already blocked by the unblocking user
+      const isUserAlreadyBlocked = userWhoisUnblocking.blocked.find(blocked=> blocked.toString() === userToBeUnblocked._id.toString())
+
+      if(!isUserAlreadyBlocked){
+        return next (appErr("You have not blocked this user"))
+      }
+      // remove userTobe blocked to the userwho block blocked arrary
+      userWhoisUnblocking.blocked = userWhoisUnblocking.blocked.filter(blocked=> blocked.toString() !== userToBeUnblocked._id.toString())
+
+      // save
+      await userWhoisUnblocking.save()
+      res.json({
+      
+        status: "success",
+        data: "You have successfully unblocked the user",
+      });
+    }
+    
+  } catch (error) {
+    res.json(error.message);
+  }
+};
+
+//   admin block
+const adminBlockUserController = async (req, res, next) => {
+  try {
+    // find the user to be blocked
+    
+    const userToBeBlocked = await User.findById(req.params.id)
+
+    // check if user is found
+    if(!userToBeBlocked){
+      return next(appErr("User not Found"))
+    }
+    // update the isblock feild to true
+    userToBeBlocked.isBlocked = true
+    // save
+    await userToBeBlocked.save()
+
+    res.json({
+      status: "success",
+      data: "You have successfully blocked this user",
+    });
+  } catch (error) {
+    res.json(error.message);
+  }
+};
+
+//   admin block
+const adminUnblockUserController = async (req, res, next) => {
+  try {
+    // find the user to be blocked
+    
+    const userToBeUnblocked = await User.findById(req.params.id)
+
+    // check if user is found
+    if(!userToBeUnblocked){
+      return next(appErr("User not Found"))
+    }
+    // update the isblock feild to true
+    userToBeUnblocked.isBlocked = false
+    // save
+    await userToBeUnblocked.save()
+
+    res.json({
+      status: "success",
+      data: "You have successfully unblocked this user",
+    });
+  } catch (error) {
+    res.json(error.message);
+  }
+};
+
+
 // delete user
 const userDeletionController = async (req, res) => {
   try {
@@ -280,5 +396,9 @@ module.exports = {
   profilePhotoUploadController,
   whoViewMyProfileController,
   followingController,
-  unfollowController
+  unfollowController,
+  blockUsersController,
+  unblockUsersController,
+  adminBlockUserController,
+  adminUnblockUserController
 };
