@@ -199,9 +199,10 @@ const userProfileController = async (req, res) => {
 //   get all users
 const allUsersController = async (req, res) => {
   try {
+    const users = await User.find()
     res.json({
       status: "success",
-      data: "All User Routes",
+      data: users, 
     });
   } catch (error) {
     res.json(error.message);

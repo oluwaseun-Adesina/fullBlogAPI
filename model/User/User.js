@@ -71,8 +71,45 @@ const userSchema = new mongoose.Schema({
     }
 
 },{
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true}
 });
+
+// get fullname 
+userSchema.virtual("fullname").get(function () {
+    return `${this.firstname} ${this.lastname}`
+})
+
+// initials
+userSchema.virtual('initials').get(function (){
+    return `${this.firstname[0]}${this.lastname[0]}`
+})
+
+// post count
+userSchema.virtual('postCount').get(function (){
+    return this.posts.length
+})
+
+// follower count
+userSchema.virtual('followersCount').get(function () {
+    return this.followers.length;
+})
+
+// following count
+userSchema.virtual('followingCount').get(function () {
+    return this.following.length;
+})
+
+// get views count
+userSchema.virtual('viewersCount').get(function (){
+    return this.viewers.length;
+})
+
+// get blocked count
+userSchema.virtual('blockedCount').get(function (){
+    return this.blocked.length;
+})
+
 
 // Compile the user model
 const User = mongoose.model('User', userSchema)
